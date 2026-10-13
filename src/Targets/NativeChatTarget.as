@@ -12,10 +12,10 @@ class NativeChatTarget : HideTarget {
     }
 
     bool Hide() override {
-        bool newCapture = false;
-
         CControlBase@ chat = Game::FindNativeChat();
         if (chat is null) return false;
+
+        bool newCapture = false;
 
         if (!captured) {
             originalHidden = chat.IsHiddenExternal;
@@ -35,7 +35,7 @@ class NativeChatTarget : HideTarget {
 
         if (chat !is null) {
             chat.IsHiddenExternal = originalHidden;
-        };
+        }
 
         captured = false;
     }

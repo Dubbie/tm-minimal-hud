@@ -18,7 +18,24 @@ namespace Targets {
             { "frame-race-rank", "frame-race-time", "frame-race-diff" }
         ));
 
-        all.InsertLast(NativeChatTarget("hideNativeChat", "Hide Native Chat", true));
+        all.InsertLast(
+            PluginSettingsTarget(
+                "hideDashboard",
+                "Hide Dashboard",
+                true,
+                "Dashboard",
+                {
+                    "Setting_General_ShowPad", "Setting_General_ShowPadHidden",
+                    "Setting_General_ShowGearbox", "Setting_General_ShowGearboxHidden",
+                    "Setting_General_ShowWheels", "Setting_General_ShowWheelsHidden",
+                    "Setting_General_ShowAcceleration", "Setting_General_ShowAccelerationHidden",
+                    "Setting_General_ShowSpeed", "Setting_General_ShowSpeedHidden",
+                    "Setting_General_ShowClock", "Setting_General_ShowClockHidden"
+                }
+            )
+        );
+
+        all.InsertLast(NativeChatTarget("hideNativeChat", "Hide Native Chat", false));
     }
 
     HideTarget@ Find(const string &in key) {

@@ -59,4 +59,17 @@ namespace Game {
 
         return FindInContainer(root, "FrameChat");
     }
+
+    Meta::Plugin@ FindPlugin(const string &in name) {
+        array<Meta::Plugin@> plugins = Meta::AllPlugins();
+
+        for (uint i = 0; i < plugins.Length; i++) {
+            Meta::Plugin@ plugin = plugins[i];
+            if (plugin is null) continue;
+
+            if (plugin.Name == name) return plugin;
+        }
+
+        return null;
+    }
 }
