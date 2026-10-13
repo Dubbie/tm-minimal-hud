@@ -17,6 +17,8 @@ namespace Targets {
             false,
             { "frame-race-rank", "frame-race-time", "frame-race-diff" }
         ));
+
+        all.InsertLast(NativeChatTarget("hideNativeChat", "Hide Native Chat", true));
     }
 
     HideTarget@ Find(const string &in key) {

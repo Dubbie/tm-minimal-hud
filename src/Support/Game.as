@@ -25,4 +25,38 @@ namespace Game {
 
         return null;
     }
+
+    CControlBase@ FindInContainer(CControlContainer@ container, const string &in id) {
+        if (container is null) return null;
+
+        for (uint i = 0; i < container.Childs.Length; i++) {
+            CControlBase@ child = container.Childs[i];
+            if (child is null) continue;
+
+            if (child.IdName == id) return child;
+
+            CControlContainer@ nested = cast<CControlContainer>(child);
+            if (nested is null) continue;
+
+            CControlBase@ found = FindInContainer(nested, id);
+            if (found !is null) return found;
+        }
+
+        return null;
+    }
+
+    CControlBase@ FindNativeChat() {
+        if (app is null) return null;
+
+        CGamePlayground@ playground = app.CurrentPlayground;
+        if (playground is null) return null;
+
+        CGamePlaygroundInterface@ gameInterface = playground.Interface;
+        if (gameInterface is null) return null;
+
+        CControlContainer@ root = gameInterface.InterfaceRoot;
+        if (root is null) return null;
+
+        return FindInContainer(root, "FrameChat");
+    }
 }
