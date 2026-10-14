@@ -79,4 +79,18 @@ namespace Targets {
         }
         return null;
     }
+
+    array<string> Groups() {
+        array<string> groups;
+
+        for (uint i = 0; i < all.Length; i++) {
+            HideTarget@ target = all[i];
+
+            if (groups.Find(target.group) < 0) {
+                groups.InsertLast(target.group);
+            }
+        }
+
+        return groups;
+    }
 }
