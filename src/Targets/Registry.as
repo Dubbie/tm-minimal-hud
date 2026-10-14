@@ -1,21 +1,27 @@
 namespace Targets {
+    const string GROUP_NATIVE_HUD = "Native HUD";
+    const string GROUP_PLUGIN_OVERLAYS = "Plugin overlays";
+    const string GROUP_CHAT = "Chat";
+
     array<HideTarget@> all;
+    dictionary groupNotes;
 
     void Register() {
         // guard in case it gets called multiple times
         if (all.Length > 0) return;
 
         all.InsertLast(NativeHudTarget("hideRecords", "Hide Records", true, { "Race_Record" }));
-        all.InsertLast(NativeHudTarget("hideRespawnHelper", "Hide Respawn Helper", true, { "Race_RespawnHelper" }));
+        all.InsertLast(NativeHudTarget("hideRespawnHelper", "Hide Respawn Helper", true, { "Race_RespawnHelper" }, "Launched Respawn, Give Up etc."));
         all.InsertLast(NativeHudTarget("hideCountdown", "Hide Countdown", true, { "Race_Countdown" }));
-        all.InsertLast(NativeHudTarget("hideBestRaceViewer", "Hide Best Race Viewer", true, { "Race_BestRaceViewer" }));
-        all.InsertLast(NativeHudTarget("hideTimeGap", "Hide Time Gap", false, { "Race_TimeGap" }));
+        all.InsertLast(NativeHudTarget("hideBestRaceViewer", "Hide Best Race Viewer", true, { "Race_BestRaceViewer" }, "Best and previous times on the right side, below the countdown."));
+        all.InsertLast(NativeHudTarget("hideTimeGap", "Hide Time Gap", false, { "Race_TimeGap" }, "Time gap leaderboard in the bottom right corner."));
         all.InsertLast(NativeHudTarget("hideRaceChrono", "Hide Bottom Timer", false, { "Race_Chrono" }));
         all.InsertLast(NativeHudTarget(
             "hideCheckpointSplit",
             "Hide Checkpoint Splits",
             false,
-            { "frame-race-rank", "frame-race-time", "frame-race-diff" }
+            { "frame-race-rank", "frame-race-time", "frame-race-diff" },
+            "Checkpoints and time splits in the middle of your screen."
         ));
 
         all.InsertLast(
@@ -70,14 +76,9 @@ namespace Targets {
 
         all.InsertLast(NativeChatTarget("hideNativeChat", "Hide Native Chat", false));
         all.InsertLast(BetterChatTarget("hideBetterChat", "Hide Better Chat", false));
-    }
 
-    HideTarget@ Find(const string &in key) {
-        for (uint i = 0; i < all.Length; i++) {
-            HideTarget@ target = all[i];
-            if (target.key == key) return target;
-        }
-        return null;
+        groupNotes.Set(GROUP_PLUGIN_OVERLAYS, "These options temporarily change other plugins' settings until minimal mode is disabled.\nDisabled rows mean the plugin is either not installed or has been disabled.");
+        groupNotes.Set(GROUP_CHAT, "Hiding Better Chat will change the plugin's settings until minimal mode is disabled.\nNative chat is not re-hidden every frame, so it can come back.");
     }
 
     array<string> Groups() {
@@ -92,5 +93,12 @@ namespace Targets {
         }
 
         return groups;
+    }
+
+    string GroupNote(const string &in group) {
+        string note = "";
+        if (!groupNotes.Get(group, note)) return "";
+
+        return note;
     }
 }

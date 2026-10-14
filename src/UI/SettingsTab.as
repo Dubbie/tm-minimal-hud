@@ -25,94 +25,120 @@ namespace SettingsView {
             armedKey = "";
         }
 
+        RenderPresetBar();
+        RenderTargetList();
+    }
+
+    void RenderPresetBar() {
         if (!renaming) {
-            UI::SetNextItemWidth(240);
-
-            if (UI::BeginCombo("Presets", Presets::active.name)) {
-                for (uint i = 0; i < Presets::all.Length; i++) {
-                    HudPreset@ preset = Presets::all[i];
-                    string selectLabel = preset.name + "###preset-" + preset.id;
-
-                    if (UI::Selectable(selectLabel, preset is Presets::active) && preset !is Presets::active) {
-                        Presets::Select(preset);
-                        MinimalMode::ApplyIfRequested();
-                    }
-                }
-
-                UI::EndCombo();
-            }
-
-            UI::SameLine();
-
-            if (UI::Button("Create preset")) {
-                Presets::Create();
-                StartRename();
-            }
-
-            UI::SameLine();
-
-            UI::BeginDisabled(Presets::active.isBuiltIn);
-            if (UI::Button("Rename preset")) StartRename();
-            UI::EndDisabled();
-
-            if (Presets::active.isBuiltIn && UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
-                UI::SetTooltip("You can't rename the built in preset.");
-            }
-
-            UI::SameLine();
-
-            if (Presets::active.isBuiltIn) {
-                if (ConfirmButton("Reset to defaults", "reset-default")) {
-                    Presets::ResetDefault();
-                    MinimalMode::ApplyIfRequested();
-                }
-
-                if (UI::IsItemHovered()) {
-                    UI::SetTooltip("Reset the default preset to its original state.");
-                }
-            } else {
-                if (ConfirmButton("Delete preset", "delete-" + Presets::active.id)) {
-                    Presets::Delete(Presets::active);
-                    MinimalMode::ApplyIfRequested();
-                }
-            }
+            RenderPresetActions();
         } else {
-            UI::SetNextItemWidth(240);
-
-            if (focusInput) {
-                UI::SetKeyboardFocusHere();
-                focusInput = false;
-            }
-
-            bool enterPressed = false;
-            nameBuffer = UI::InputText("Preset name", nameBuffer, enterPressed, UI::InputTextFlags::EnterReturnsTrue);
-            if (enterPressed) TrySave();
-
-            UI::SameLine();
-
-            if (UI::Button("Save")) {
-                TrySave();
-            }
-
-            UI::SameLine();
-
-            if (UI::Button("Cancel")) {
-                renaming = false;
-                renameError = "";
-            }
-
-            // error handling
-            if (renameError != "") {
-                UI::Text("\\$f66" + renameError);
-            }
+            RenderRenameForm();
         }
 
+        // hint that minimal mode is off so changes are not taking effect until enabled
+        if (!minimalModeRequested) {
+            UI::Text("\\$888Minimal mode is off. Changes apply when you turn it on (" + tostring(toggleKey) + ").");
+        }
+    }
+
+    void RenderPresetActions() {
+         UI::SetNextItemWidth(240);
+
+        if (UI::BeginCombo("Presets", Presets::active.name)) {
+            for (uint i = 0; i < Presets::all.Length; i++) {
+                HudPreset@ preset = Presets::all[i];
+                string selectLabel = preset.name + "###preset-" + preset.id;
+
+                if (UI::Selectable(selectLabel, preset is Presets::active) && preset !is Presets::active) {
+                    Presets::Select(preset);
+                    MinimalMode::ApplyIfRequested();
+                }
+            }
+
+            UI::EndCombo();
+        }
+
+        UI::SameLine();
+
+        if (UI::Button("Create preset")) {
+            Presets::Create();
+            StartRename();
+        }
+
+        UI::SameLine();
+
+        UI::BeginDisabled(Presets::active.isBuiltIn);
+        if (UI::Button("Rename preset")) StartRename();
+        UI::EndDisabled();
+
+        if (Presets::active.isBuiltIn && UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
+            UI::SetTooltip("You can't rename the built-in preset.");
+        }
+
+        UI::SameLine();
+
+        if (Presets::active.isBuiltIn) {
+            if (ConfirmButton("Reset to defaults", "reset-default")) {
+                Presets::ResetDefault();
+                MinimalMode::ApplyIfRequested();
+            }
+
+            if (UI::IsItemHovered()) {
+                UI::SetTooltip("Reset the default preset to its original state.");
+            }
+        } else {
+            if (ConfirmButton("Delete preset", "delete-" + Presets::active.id)) {
+                Presets::Delete(Presets::active);
+                MinimalMode::ApplyIfRequested();
+            }
+        }
+    }
+
+    void RenderRenameForm() {
+        UI::SetNextItemWidth(240);
+
+        if (focusInput) {
+            UI::SetKeyboardFocusHere();
+            focusInput = false;
+        }
+
+        bool enterPressed = false;
+        nameBuffer = UI::InputText("Preset name", nameBuffer, enterPressed, UI::InputTextFlags::EnterReturnsTrue);
+        if (enterPressed) TrySave();
+
+        UI::SameLine();
+
+        if (UI::Button("Save")) {
+            TrySave();
+        }
+
+        UI::SameLine();
+
+        if (UI::Button("Cancel")) {
+            renaming = false;
+            renameError = "";
+        }
+
+        // error handling
+        if (renameError != "") {
+            UI::Text("\\$f66" + renameError);
+        }
+    }
+
+    void RenderTargetList() {
         array<string> groups = Targets::Groups();
 
         for (uint i = 0; i < groups.Length; i++) {
             string group = groups[i];
 
             UI::SeparatorText(group);
+
+            string note = Targets::GroupNote(group);
+            if (note != "") {
+                UI::TextWrapped("\\$888" + note);
+            }
+
             for (uint j = 0; j < Targets::all.Length; j++) {
                 HideTarget@ target = Targets::all[j];
                 if (target.group != group) continue;

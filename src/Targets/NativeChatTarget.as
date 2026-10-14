@@ -8,7 +8,7 @@ class NativeChatTarget : HideTarget {
         bool defaultHidden,
         const string &in tooltip = ""
     ) {
-        super(key, label, "Chat", defaultHidden, tooltip);
+        super(key, label, Targets::GROUP_CHAT, defaultHidden, tooltip);
     }
 
     bool Hide() override {

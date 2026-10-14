@@ -19,8 +19,9 @@ class PluginSettingsTarget : HideTarget {
         const array<string> &in settingNames,
         const string &in tooltip = ""
     ) {
-        super(key, label, "Plugin overlays", defaultHidden, tooltip);
+        super(key, label, Targets::GROUP_PLUGIN_OVERLAYS, defaultHidden, tooltip);
         this.pluginName = pluginName;
+        this.tooltip = tooltip != "" ? tooltip : "Requires the " + pluginName + " plugin.";
 
         for (uint i = 0; i < settingNames.Length; i++) {
             settings.InsertLast(PluginSetting(settingNames[i]));

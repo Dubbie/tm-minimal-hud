@@ -16,7 +16,7 @@ class NativeHudTarget : HideTarget {
         const array<string> &in ids,
         const string &in tooltip = ""
     ) {
-        super(key, label, "Native HUD", defaultHidden, tooltip);
+        super(key, label, Targets::GROUP_NATIVE_HUD, defaultHidden, tooltip);
 
         for (uint i = 0; i < ids.Length; i++) {
             controls.InsertLast(ControlSnapshot(ids[i]));
