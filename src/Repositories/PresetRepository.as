@@ -12,6 +12,16 @@ namespace PresetRepository {
         return IO::FromStorageFolder("presets.json");
     }
 
+    bool HasField(
+        const Json::Value &in data,
+        const string &in name,
+        Json::Type expectedType
+    ) {
+        return data.GetType() == Json::Type::Object
+            && data.HasKey(name)
+            && data[name].GetType() == expectedType;
+    }
+
     Json::Value@ PresetToJson(HudPreset@ preset) {
         Json::Value@ obj = Json::Object();
         obj[KEY_ID] = preset.id;
@@ -27,6 +37,39 @@ namespace PresetRepository {
         obj[KEY_HIDDEN] = hidden;
 
         return obj;
+    }
+
+    HudPreset@ PresetFromJson(const Json::Value@ data) {
+        if (!HasField(data, KEY_ID, Json::Type::String) || !HasField(data, KEY_NAME, Json::Type::String)) return null;
+
+        string id = data[KEY_ID];
+        string name = data[KEY_NAME];
+
+        // can't identify, can't show name in dropdown
+        if (id == "" || name == "") return null;
+
+        HudPreset@ preset = null;
+        if (id == "default") {
+            @preset = HudPreset("default", "Default", true);
+        } else {
+            @preset = HudPreset(id, name);
+        }
+
+        bool hasHidden = HasField(data, KEY_HIDDEN, Json::Type::Object);
+
+        // iterate registry so we have all possible keys with values, unknown keys are ignored automatically
+        for (uint i = 0; i < Targets::all.Length; i++) {
+            HideTarget@ target = Targets::all[i];
+            bool value = target.defaultHidden; // handles missing entirely, missing key and wrong type
+
+            if (hasHidden && HasField(data[KEY_HIDDEN], target.key, Json::Type::Boolean)) {
+                value = data[KEY_HIDDEN][target.key];
+            }
+
+            preset.SetHidden(target.key, value);
+        }
+
+        return preset;
     }
 
     void Save(array<HudPreset@>@ presets, const string &in activeId) {
