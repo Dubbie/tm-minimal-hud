@@ -7,7 +7,7 @@ class BetterChatTarget : PluginSettingsTarget {
     ) {
         super(key, label, defaultHidden, "Better Chat", { "Setting_HideWithOP" }, tooltip);
 
-        // these are wrong in the parent for Better Chat, so overwrite them
+        // Better Chat is hidden when Setting_HideWithOP is true, invert the default hidden value
         hiddenValue = true;
         group = Targets::GROUP_CHAT;
     }

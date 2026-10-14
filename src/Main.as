@@ -29,6 +29,7 @@ void RenderMenu() {
     UI::EndMenu();
 }
 
+// restore everything when plugin is disabled or unloaded, so nothing stays hidden
 void OnDisabled() {
     MinimalMode::Restore();
 }

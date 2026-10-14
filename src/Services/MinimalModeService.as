@@ -40,6 +40,7 @@ namespace MinimalMode {
     void Enforce() {
         if (!minimalModeRequested) return;
 
+        // possibly okay to call this every frame
         for (uint i = 0; i < Targets::all.Length; i++) {
             HideTarget@ target = Targets::all[i];
             if (target.HasSnapshot()) target.Enforce();
@@ -49,6 +50,7 @@ namespace MinimalMode {
     void Tick(float dt) {
         CGamePlayground@ currentPlayground = Game::app.CurrentPlayground;
 
+        // map changes, just restore and hide when it loads in
         if (currentPlayground !is observedPlayground) {
             if (enabled) {
                 Restore();

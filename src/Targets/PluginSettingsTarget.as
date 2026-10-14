@@ -47,12 +47,14 @@ class PluginSettingsTarget : HideTarget {
             Meta::PluginSetting@ ps = plugin.GetSetting(setting.name);
             if (ps is null || ps.TypeName != "bool") continue;
 
+            // capture once, the first time we hide. second capture would save our own hidden value as "original" and would break it
             if (!setting.captured) {
                 setting.originalValue = ps.ReadBool();
                 setting.captured = true;
                 newCapture = true;
             }
 
+            // only write when it differs, every write is a settings save in their plugin
             if (ps.ReadBool() != hiddenValue) {
                 ps.WriteBool(hiddenValue);
             }
@@ -63,6 +65,7 @@ class PluginSettingsTarget : HideTarget {
 
     void Restore() override {
         Meta::Plugin@ plugin = Game::FindPlugin(pluginName);
+        // plugin is missing: keep snapshot, settings are saved to disk, restore them once the plugin is back
         if (plugin is null) return;
 
         for (uint i = 0; i < settings.Length; i++) {

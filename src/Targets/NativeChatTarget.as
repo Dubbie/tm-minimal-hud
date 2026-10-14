@@ -1,6 +1,6 @@
 class NativeChatTarget : HideTarget {
     bool originalHidden = false;
-    bool captured = false; // hasSnapshot might get confusing since it's a method aswell
+    bool captured = false;
 
     NativeChatTarget(
         const string &in key,

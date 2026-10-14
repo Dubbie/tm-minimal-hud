@@ -16,7 +16,7 @@ namespace SettingsView {
     void Render() {
         if (Presets::active is null) return;
 
-        // cancel handling
+        // close rename if the active preset changes
         if (renaming && renamingId != Presets::active.id) {
             renaming = false;
         }
@@ -120,7 +120,6 @@ namespace SettingsView {
             renameError = "";
         }
 
-        // error handling
         if (renameError != "") {
             UI::Text("\\$f66" + renameError);
         }

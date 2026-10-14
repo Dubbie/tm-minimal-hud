@@ -60,6 +60,7 @@ namespace Presets {
         if (result == PresetRepository::LoadResult::Missing) {
             Save();
         } else if (result == PresetRepository::LoadResult::Failed) {
+            // move the file out of the way before saving, so it's not overwritten
             string backupName = PresetRepository::Backup();
             Notify::Warn("presets.json could not be read and was moved to " + backupName + ". Using default presets.");
             Save();

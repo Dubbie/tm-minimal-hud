@@ -26,7 +26,7 @@ class HudPreset {
     HudPreset@ CopyAs(const string &in newId, const string &in newName) {
         HudPreset@ newPreset = HudPreset(newId, newName, false);
 
-        array<string>@ keys = hidden.GetKeys(); // we are not making a copy of the keys
+        array<string>@ keys = hidden.GetKeys(); // keep the handle only
         for (uint i = 0; i < keys.Length; i++) {
             bool value = false;
             hidden.Get(keys[i], value);
