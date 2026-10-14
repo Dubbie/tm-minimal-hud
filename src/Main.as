@@ -21,10 +21,25 @@ void RenderMenu() {
     UI::Separator();
 
     // presets service test
-    if (UI::MenuItem("DEBUG: add test preset")) {
-        HudPreset@ p = Presets::active.CopyAs("test-" + Presets::all.Length, "Test " + Presets::all.Length);
-        p.SetHidden("hideRecords", false);
-        Presets::all.InsertLast(p);
+    if (UI::MenuItem("DEBUG: create preset")) {
+        Presets::Create();
+    }
+
+    if (UI::MenuItem("DEBUG: delete active")) {
+        Presets::Delete(Presets::active);
+    }
+
+    if (UI::MenuItem("DEBUG: rename active")) {
+        string errorMessage = Presets::Rename(Presets::active, "Renamed");
+        print("Message after rename: " + errorMessage);
+    }
+
+    if (UI::MenuItem("DEBUG: reset Default")) {
+        Presets::ResetDefault();
+    }
+
+    if (UI::MenuItem("DEBUG: flip Records")) {
+        Presets::SetHidden("hideRecords", !Presets::active.IsHidden("hideRecords"));
     }
 
     if (UI::MenuItem("Restore normal HUD", "", false)) {
