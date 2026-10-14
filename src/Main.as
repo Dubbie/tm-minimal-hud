@@ -3,13 +3,6 @@ bool cycleKeyDown = false;
 
 void Main() {
     Presets::Initialize();
-
-    // Test loading
-    array<HudPreset@> loaded;
-    string activeId;
-    PresetRepository::LoadResult result = PresetRepository::Load(loaded, activeId);
-    print("result=" + result + " active=" + activeId + " count=" + loaded.Length);
-    for (uint i = 0; i < loaded.Length; i++) print("  " + loaded[i].id + " | " + loaded[i].name);
 }
 
 void Update(float dt) {
@@ -27,18 +20,10 @@ void RenderMenu() {
 
     UI::Separator();
 
-    // preset repo test
-    if (UI::MenuItem("DEBUG: preset save test")) {
-        Presets::Create();                                  // Custom preset 1, selected
-        Presets::SetHidden("hideTimeGap", true);
-        Presets::Create();                                  // Custom preset 2, copy of 1
-        Presets::Rename(Presets::active, "Streaming");
-    }
-
     if (UI::MenuItem("Restore normal HUD", "", false)) {
         minimalModeRequested = false;
         MinimalMode::Restore();
-        Notify("Normal HUD restored");
+        Notify::Info("Normal HUD restored");
     }
 
     UI::EndMenu();
@@ -54,6 +39,7 @@ void OnDestroyed() {
 
 void OnSettingsChanged() {
     toggleKeyDown = false;
+    cycleKeyDown = false;
 }
 
 void OnKeyPress(bool down, VirtualKey key) {
@@ -62,7 +48,7 @@ void OnKeyPress(bool down, VirtualKey key) {
             toggleKeyDown = true;
 
             MinimalMode::Toggle();
-            Notify("Minimal mode: " + (minimalModeRequested ? "enabled" : "disabled"));
+            Notify::Info("Minimal mode: " + (minimalModeRequested ? "enabled" : "disabled"));
         } else if (!down && toggleKeyDown) {
             toggleKeyDown = false;
         }
@@ -77,7 +63,7 @@ void OnKeyPress(bool down, VirtualKey key) {
                 MinimalMode::Apply();
             }
 
-            Notify("Preset changed to: " + Presets::active.name);
+            Notify::Info("Preset changed to: " + Presets::active.name);
         } else if (!down && cycleKeyDown) {
             cycleKeyDown = false;
         }

@@ -20,14 +20,50 @@ namespace Presets {
         return false;
     }
 
+    HudPreset@ FindById(array<HudPreset@>@ list, const string &in id) {
+        for (uint i = 0; i < list.Length; i++) {
+            HudPreset@ preset = list[i];
+            if (preset.id == id) return preset;
+        }
+        return null;
+    }
+
     void Initialize() {
+        // setup
         if (initialized) return;
         initialized = true;
+        Targets::Register();
 
-        Targets::Register(); // moved from main
+        // reading stuff
+        array<HudPreset@> loaded;
+        string activeId;
+        PresetRepository::LoadResult result = PresetRepository::Load(loaded, activeId); // this sets up both loaded and activeId
 
-        all.InsertLast(BuildDefault());
-        @active = all[0]; // active should always point into all, and not make a new copy!
+        // find default preset
+        HudPreset@ defaultPreset = FindById(loaded, "default");
+
+        if (defaultPreset is null) {
+            @defaultPreset = BuildDefault(); // file had no default
+        } else {
+            loaded.RemoveAt(loaded.FindByRef(defaultPreset)); // take it out of loaded as we will iterate next
+        }
+
+        // assembling the list + active selecting
+        all.InsertLast(defaultPreset);
+        for (uint i = 0; i < loaded.Length; i++) {
+            all.InsertLast(loaded[i]);
+        }
+        HudPreset@ saved = FindById(all, activeId);
+        @active = saved is null ? all[0] : saved;
+
+        // handle load results
+        if (result == PresetRepository::LoadResult::Missing) {
+            Save();
+        } else if (result == PresetRepository::LoadResult::Failed) {
+            string backupName = PresetRepository::Backup();
+            Notify::Warn("presets.json could not be read and was moved to " + backupName + ". Using default presets.");
+            Save();
+        } // loaded has nothing to do
     }
 
     HudPreset@ BuildDefault() {

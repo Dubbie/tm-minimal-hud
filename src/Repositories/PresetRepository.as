@@ -115,13 +115,13 @@ namespace PresetRepository {
         for (uint i = 0; i < root[KEY_PRESETS].Length; i++) {
             HudPreset@ preset = PresetFromJson(root[KEY_PRESETS][i]);
             if (preset is null) {
-                warn("Failed to load preset: " + Json::Write(root[KEY_PRESETS][i]));
+                Notify::Warn("Failed to load preset, see log", "Failed to load preset: " + Json::Write(root[KEY_PRESETS][i]));
                 continue;
             }
 
             // if preset with same id is already in into, skip it
             if (ContainsId(into, preset.id)) {
-                warn("Preset with id already exists: " + preset.id);
+                Notify::Warn("Preset with id already exists: " + preset.id);
                 continue;
             }
 
@@ -148,5 +148,16 @@ namespace PresetRepository {
         root[KEY_PRESETS] = list;
 
         Json::ToFile(Path(), root, true);
+    }
+
+    string Backup() {
+        // create backup presets file datetimed, ex. presets.broken-xxxx-xx-xx_xx-xx-xx.json
+        string dateTime = Time::FormatString("%Y-%m-%d_%H-%M-%S", Time::Stamp);
+        string backupName = "presets.broken-" + dateTime + ".json";
+        string backupPath = IO::FromStorageFolder(backupName);
+
+        IO::Move(Path(), backupPath);
+
+        return backupName;
     }
 }
