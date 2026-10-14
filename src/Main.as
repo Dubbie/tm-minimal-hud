@@ -1,4 +1,5 @@
 bool toggleKeyDown = false;
+bool cycleKeyDown = false;
 
 void Main() {
     Presets::Initialize();
@@ -20,8 +21,10 @@ void RenderMenu() {
     UI::Separator();
 
     // presets service test
-    if (UI::MenuItem("DEBUG: flip Records in preset")) {
-        Presets::active.SetHidden("hideRecords", !Presets::active.IsHidden("hideRecords"));
+    if (UI::MenuItem("DEBUG: add test preset")) {
+        HudPreset@ p = Presets::active.CopyAs("test-" + Presets::all.Length, "Test " + Presets::all.Length);
+        p.SetHidden("hideRecords", false);
+        Presets::all.InsertLast(p);
     }
 
     if (UI::MenuItem("Restore normal HUD", "", false)) {
@@ -54,6 +57,21 @@ void OnKeyPress(bool down, VirtualKey key) {
             Notify("Minimal mode: " + (minimalModeRequested ? "enabled" : "disabled"));
         } else if (!down && toggleKeyDown) {
             toggleKeyDown = false;
+        }
+    } else if (key == cyclePresetKey) {
+        if (down && !cycleKeyDown) {
+            cycleKeyDown = true;
+
+            Presets::Cycle();
+
+            // apply instantly so we don't have to wait 250ms
+            if (minimalModeRequested) {
+                MinimalMode::Apply();
+            }
+
+            Notify("Preset changed to: " + Presets::active.name);
+        } else if (!down && cycleKeyDown) {
+            cycleKeyDown = false;
         }
     }
 }

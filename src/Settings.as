@@ -1,6 +1,9 @@
 [Setting category="Controls" name="Toggle key"]
 VirtualKey toggleKey = VirtualKey::F8;
 
+[Setting category="Controls" name="Cycle preset key"]
+VirtualKey cyclePresetKey = VirtualKey::F9;
+
 [Setting category="Controls" name="Show notifications"]
 bool showNotifications = true;
 
