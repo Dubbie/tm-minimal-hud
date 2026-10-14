@@ -1,19 +1,17 @@
 bool toggleKeyDown = false;
 
 void Main() {
-    Targets::Register();
+    Presets::Initialize();
 
-    // preset test
-    HudPreset@ testPreset = HudPreset("test", "Test");
-    testPreset.SetHidden("hideRecords", true);
+    // presets service test
+    print(Presets::all.Length); // expected: 1
+    print(Presets::active.name); // expected: "Default"
+    print(Presets::active.isBuiltIn); // expected: true
 
-    print(testPreset.IsHidden("hideRecords"));
-    print(testPreset.IsHidden("randomThing"));
-
-    HudPreset@ copiedPreset = testPreset.CopyAs("copied", "Copied");
-    copiedPreset.SetHidden("hideRecords", false);
-    print(testPreset.IsHidden("hideRecords"));
-    print(copiedPreset.IsHidden("hideRecords"));
+    for (uint i = 0; i < Targets::all.Length; i++) {
+        HideTarget@ target = Targets::all[i];
+        print(target.key + " " + Presets::active.IsHidden(target.key));
+    }
 }
 
 void Update(float dt) {
