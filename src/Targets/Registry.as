@@ -34,8 +34,42 @@ namespace Targets {
                 }
             )
         );
+        all.InsertLast(
+            PluginSettingsTarget(
+                "hideGrindingStats",
+                "Hide Grinding Stats",
+                true,
+                "Grinding Stats",
+                {
+                    "setting_enabled"
+                }
+            )
+        );
+        all.InsertLast(
+            PluginSettingsTarget(
+                "hideCheckpointCounter",
+                "Hide Checkpoint Counter",
+                false,
+                "Checkpoint Counter",
+                {
+                    "showCounter"
+                }
+            )
+        );
+        all.InsertLast(
+            PluginSettingsTarget(
+                "hideSplitSpeeds",
+                "Hide Split Speeds",
+                false,
+                "Split Speeds",
+                {
+                    "showCurrentSpeed", "showSpeedDiff"
+                }
+            )
+        );
 
         all.InsertLast(NativeChatTarget("hideNativeChat", "Hide Native Chat", false));
+        all.InsertLast(BetterChatTarget("hideBetterChat", "Hide Better Chat", false));
     }
 
     HideTarget@ Find(const string &in key) {

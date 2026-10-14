@@ -17,12 +17,12 @@ namespace MinimalMode {
         for (uint i = 0; i < Targets::all.Length; i++) {
             HideTarget@ target = Targets::all[i];
 
-            if (target.defaultHidden) {
+            if (target.defaultHidden && target.IsAvailable()) {
                 if (target.Hide()) {
                     enabled = true;
                 }
             } else {
-                // unused until presets are implemented
+                // not wanted or not available: put it back
                 target.Restore();
             }
         }
