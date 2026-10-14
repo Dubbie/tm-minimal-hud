@@ -2,16 +2,6 @@ bool toggleKeyDown = false;
 
 void Main() {
     Presets::Initialize();
-
-    // presets service test
-    print(Presets::all.Length); // expected: 1
-    print(Presets::active.name); // expected: "Default"
-    print(Presets::active.isBuiltIn); // expected: true
-
-    for (uint i = 0; i < Targets::all.Length; i++) {
-        HideTarget@ target = Targets::all[i];
-        print(target.key + " " + Presets::active.IsHidden(target.key));
-    }
 }
 
 void Update(float dt) {
@@ -28,6 +18,11 @@ void RenderMenu() {
     if (UI::MenuItem("Minimal mode", "", minimalModeRequested)) MinimalMode::Toggle();
 
     UI::Separator();
+
+    // presets service test
+    if (UI::MenuItem("DEBUG: flip Records in preset")) {
+        Presets::active.SetHidden("hideRecords", !Presets::active.IsHidden("hideRecords"));
+    }
 
     if (UI::MenuItem("Restore normal HUD", "", false)) {
         minimalModeRequested = false;

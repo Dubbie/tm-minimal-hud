@@ -17,7 +17,7 @@ namespace MinimalMode {
         for (uint i = 0; i < Targets::all.Length; i++) {
             HideTarget@ target = Targets::all[i];
 
-            if (target.defaultHidden && target.IsAvailable()) {
+            if (Presets::active.IsHidden(target.key) && target.IsAvailable()) {
                 if (target.Hide()) {
                     enabled = true;
                 }
