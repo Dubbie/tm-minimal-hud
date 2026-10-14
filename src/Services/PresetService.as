@@ -117,6 +117,6 @@ namespace Presets {
     }
 
     void Save() {
-        // stub for now
+        PresetRepository::Save(all, active.id);
     }
 }

@@ -20,26 +20,12 @@ void RenderMenu() {
 
     UI::Separator();
 
-    // presets service test
-    if (UI::MenuItem("DEBUG: create preset")) {
-        Presets::Create();
-    }
-
-    if (UI::MenuItem("DEBUG: delete active")) {
-        Presets::Delete(Presets::active);
-    }
-
-    if (UI::MenuItem("DEBUG: rename active")) {
-        string errorMessage = Presets::Rename(Presets::active, "Renamed");
-        print("Message after rename: " + errorMessage);
-    }
-
-    if (UI::MenuItem("DEBUG: reset Default")) {
-        Presets::ResetDefault();
-    }
-
-    if (UI::MenuItem("DEBUG: flip Records")) {
-        Presets::SetHidden("hideRecords", !Presets::active.IsHidden("hideRecords"));
+    // preset repo test
+    if (UI::MenuItem("DEBUG: preset save test")) {
+        Presets::Create();                                  // Custom preset 1, selected
+        Presets::SetHidden("hideTimeGap", true);
+        Presets::Create();                                  // Custom preset 2, copy of 1
+        Presets::Rename(Presets::active, "Streaming");
     }
 
     if (UI::MenuItem("Restore normal HUD", "", false)) {
