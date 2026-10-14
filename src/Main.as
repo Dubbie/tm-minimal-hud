@@ -2,6 +2,18 @@ bool toggleKeyDown = false;
 
 void Main() {
     Targets::Register();
+
+    // preset test
+    HudPreset@ testPreset = HudPreset("test", "Test");
+    testPreset.SetHidden("hideRecords", true);
+
+    print(testPreset.IsHidden("hideRecords"));
+    print(testPreset.IsHidden("randomThing"));
+
+    HudPreset@ copiedPreset = testPreset.CopyAs("copied", "Copied");
+    copiedPreset.SetHidden("hideRecords", false);
+    print(testPreset.IsHidden("hideRecords"));
+    print(copiedPreset.IsHidden("hideRecords"));
 }
 
 void Update(float dt) {
