@@ -10,12 +10,19 @@ namespace SettingsView {
     string renameError = "";
     string renamingId = ""; // needed in case user cycles preset while renaming
 
+    string armedKey = "";
+    uint64 armedAt = 0;
+
     void Render() {
         if (Presets::active is null) return;
 
         // cancel handling
         if (renaming && renamingId != Presets::active.id) {
             renaming = false;
+        }
+
+        if (armedKey != "" && Time::Now - armedAt > 3000) {
+            armedKey = "";
         }
 
         if (!renaming) {
@@ -49,7 +56,25 @@ namespace SettingsView {
             UI::EndDisabled();
 
             if (Presets::active.isBuiltIn && UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
-                UI::SetTooltip("You can not rename the built in preset.");
+                UI::SetTooltip("You can't rename the built in preset.");
+            }
+
+            UI::SameLine();
+
+            if (Presets::active.isBuiltIn) {
+                if (ConfirmButton("Reset to defaults", "reset-default")) {
+                    Presets::ResetDefault();
+                    MinimalMode::ApplyIfRequested();
+                }
+
+                if (UI::IsItemHovered()) {
+                    UI::SetTooltip("Reset the default preset to its original state.");
+                }
+            } else {
+                if (ConfirmButton("Delete preset", "delete-" + Presets::active.id)) {
+                    Presets::Delete(Presets::active);
+                    MinimalMode::ApplyIfRequested();
+                }
             }
         } else {
             UI::SetNextItemWidth(240);
@@ -131,6 +156,9 @@ namespace SettingsView {
 
         // focus the input
         focusInput = true;
+
+        // fixes clicking arm delete, clicking rename, cancelling within the timelimit (would delete in 1 click)
+        armedKey = "";
     }
 
     void TrySave() {
@@ -142,5 +170,28 @@ namespace SettingsView {
             renameError = error;
             focusInput = true;
         }
+    }
+
+    bool ConfirmButton(const string &in label, const string &in key) {
+        bool armed = armedKey == key;
+
+        // build label
+        string btnLabel = armed ? "Are you sure?" : label;
+        btnLabel += "###" + key;
+
+        // draw button
+        if (armed) {
+            if (UI::ButtonColored(btnLabel, 0.0f)) {
+                armedKey = "";
+                return true;
+            }
+        } else {
+            if (UI::Button(btnLabel)) {
+                armedKey = key;
+                armedAt = Time::Now;
+            }
+        }
+
+        return false;
     }
 }
