@@ -59,9 +59,7 @@ void OnKeyPress(bool down, VirtualKey key) {
             Presets::Cycle();
 
             // apply instantly so we don't have to wait 250ms
-            if (minimalModeRequested) {
-                MinimalMode::Apply();
-            }
+            MinimalMode::ApplyIfRequested();
 
             Notify::Info("Preset changed to: " + Presets::active.name);
         } else if (!down && cycleKeyDown) {

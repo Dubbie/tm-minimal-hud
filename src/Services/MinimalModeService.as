@@ -68,4 +68,10 @@ namespace MinimalMode {
             }
         }
     }
+
+    void ApplyIfRequested() {
+        if (minimalModeRequested) {
+            Apply();
+        }
+    }
 }

@@ -7,7 +7,22 @@ namespace SettingsView {
     void Render() {
         if (Presets::active is null) return;
 
-        UI::Text("Editing: " + Presets::active.name);
+        if (UI::BeginCombo("Presets", Presets::active.name)) {
+            for (uint i = 0; i < Presets::all.Length; i++) {
+                HudPreset@ preset = Presets::all[i];
+                string selectLabel = preset.name + "###preset-" + preset.id;
+
+                if (UI::Selectable(selectLabel, preset is Presets::active)) {
+                    Presets::Select(preset);
+                }
+            }
+
+            UI::EndCombo();
+        }
+
+        UI::SameLine();
+
+        if (UI::Button("Create preset")) Presets::Create();
 
         array<string> groups = Targets::Groups();
 
