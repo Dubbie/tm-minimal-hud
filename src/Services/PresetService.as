@@ -102,15 +102,15 @@ namespace Presets {
 
     string Rename(HudPreset@ preset, const string &in newName) {
         if (preset.isBuiltIn) return "Default can't be renamed.";
-        if (newName == "") return "Name can't be empty.";
-        // TODO: names consisting of only spaces are allowed
+        string trimmed = newName.Trim();
+        if (trimmed == "") return "Name can't be empty.";
 
         for (uint i = 0; i < all.Length; i++) {
             HudPreset@ other = all[i];
-            if (other !is preset && other.name == newName) return "A preset with that name already exists.";
+            if (other !is preset && other.name == trimmed) return "A preset with that name already exists.";
         }
 
-        preset.name = newName;
+        preset.name = trimmed;
         Save();
 
         return "";

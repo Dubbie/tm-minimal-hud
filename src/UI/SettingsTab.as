@@ -4,26 +4,83 @@ void RenderSettingsTab() {
 }
 
 namespace SettingsView {
+    bool renaming = false;
+    bool focusInput = false;
+    string nameBuffer = "";
+    string renameError = "";
+    string renamingId = ""; // needed in case user cycles preset while renaming
+
     void Render() {
         if (Presets::active is null) return;
 
-        if (UI::BeginCombo("Presets", Presets::active.name)) {
-            for (uint i = 0; i < Presets::all.Length; i++) {
-                HudPreset@ preset = Presets::all[i];
-                string selectLabel = preset.name + "###preset-" + preset.id;
-
-                if (UI::Selectable(selectLabel, preset is Presets::active) && preset !is Presets::active) {
-                    Presets::Select(preset);
-                    MinimalMode::ApplyIfRequested();
-                }
-            }
-
-            UI::EndCombo();
+        // cancel handling
+        if (renaming && renamingId != Presets::active.id) {
+            renaming = false;
         }
 
-        UI::SameLine();
+        if (!renaming) {
+            UI::SetNextItemWidth(240);
 
-        if (UI::Button("Create preset")) Presets::Create();
+            if (UI::BeginCombo("Presets", Presets::active.name)) {
+                for (uint i = 0; i < Presets::all.Length; i++) {
+                    HudPreset@ preset = Presets::all[i];
+                    string selectLabel = preset.name + "###preset-" + preset.id;
+
+                    if (UI::Selectable(selectLabel, preset is Presets::active) && preset !is Presets::active) {
+                        Presets::Select(preset);
+                        MinimalMode::ApplyIfRequested();
+                    }
+                }
+
+                UI::EndCombo();
+            }
+
+            UI::SameLine();
+
+            if (UI::Button("Create preset")) {
+                Presets::Create();
+                StartRename();
+            }
+
+            UI::SameLine();
+
+            UI::BeginDisabled(Presets::active.isBuiltIn);
+            if (UI::Button("Rename preset")) StartRename();
+            UI::EndDisabled();
+
+            if (Presets::active.isBuiltIn && UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
+                UI::SetTooltip("You can not rename the built in preset.");
+            }
+        } else {
+            UI::SetNextItemWidth(240);
+
+            if (focusInput) {
+                UI::SetKeyboardFocusHere();
+                focusInput = false;
+            }
+
+            bool enterPressed = false;
+            nameBuffer = UI::InputText("Preset name", nameBuffer, enterPressed, UI::InputTextFlags::EnterReturnsTrue);
+            if (enterPressed) TrySave();
+
+            UI::SameLine();
+
+            if (UI::Button("Save")) {
+                TrySave();
+            }
+
+            UI::SameLine();
+
+            if (UI::Button("Cancel")) {
+                renaming = false;
+                renameError = "";
+            }
+
+            // error handling
+            if (renameError != "") {
+                UI::Text("\\$f66" + renameError);
+            }
+        }
 
         array<string> groups = Targets::Groups();
 
@@ -63,6 +120,27 @@ namespace SettingsView {
         if (next != current) {
             Presets::SetHidden(target.key, next);
             MinimalMode::ApplyIfRequested();
+        }
+    }
+
+    void StartRename() {
+        nameBuffer = Presets::active.name;
+        renameError = "";
+        renamingId = Presets::active.id;
+        renaming = true;
+
+        // focus the input
+        focusInput = true;
+    }
+
+    void TrySave() {
+        string error = Presets::Rename(Presets::active, nameBuffer);
+
+        if (error == "") {
+            renaming = false;
+        } else {
+            renameError = error;
+            focusInput = true;
         }
     }
 }
