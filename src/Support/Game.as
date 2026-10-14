@@ -2,8 +2,6 @@ namespace Game {
     CTrackMania@ get_app() { return cast<CTrackMania>(GetApp()); }
 
     CGameManialinkControl@ FindNativeControl(const string &in id) {
-        if (app is null) return null;
-
         CTrackManiaNetwork@ network = cast<CTrackManiaNetwork>(app.Network);
         if (network is null) return null;
 
@@ -46,8 +44,6 @@ namespace Game {
     }
 
     CControlBase@ FindNativeChat() {
-        if (app is null) return null;
-
         CGamePlayground@ playground = app.CurrentPlayground;
         if (playground is null) return null;
 
@@ -71,5 +67,9 @@ namespace Game {
         }
 
         return null;
+    }
+
+    bool InMap() {
+        return app.CurrentPlayground !is null;
     }
 }

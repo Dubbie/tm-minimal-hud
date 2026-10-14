@@ -7,7 +7,7 @@ namespace MinimalMode {
         minimalModeRequested = !minimalModeRequested;
 
         if (minimalModeRequested) {
-            Apply();
+            ApplyIfRequested();
         } else {
             Restore();
         }
@@ -70,8 +70,8 @@ namespace MinimalMode {
     }
 
     void ApplyIfRequested() {
-        if (minimalModeRequested) {
-            Apply();
-        }
+        if (!minimalModeRequested || !Game::InMap()) return;
+
+        Apply();
     }
 }

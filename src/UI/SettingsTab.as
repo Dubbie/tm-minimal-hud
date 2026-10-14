@@ -12,8 +12,9 @@ namespace SettingsView {
                 HudPreset@ preset = Presets::all[i];
                 string selectLabel = preset.name + "###preset-" + preset.id;
 
-                if (UI::Selectable(selectLabel, preset is Presets::active)) {
+                if (UI::Selectable(selectLabel, preset is Presets::active) && preset !is Presets::active) {
                     Presets::Select(preset);
+                    MinimalMode::ApplyIfRequested();
                 }
             }
 
@@ -61,6 +62,7 @@ namespace SettingsView {
 
         if (next != current) {
             Presets::SetHidden(target.key, next);
+            MinimalMode::ApplyIfRequested();
         }
     }
 }
