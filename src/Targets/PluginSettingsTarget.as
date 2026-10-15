@@ -4,6 +4,11 @@ class PluginSetting {
     bool captured = false;
 
     PluginSetting(const string &in name) { this.name = name; }
+
+    void Seed(bool original) {
+        originalValue = original;
+        captured = true;
+    }
 }
 
 class PluginSettingsTarget : HideTarget {
@@ -73,9 +78,9 @@ class PluginSettingsTarget : HideTarget {
             if (!setting.captured) continue;
 
             Meta::PluginSetting@ ps = plugin.GetSetting(setting.name);
-            if (ps is null || ps.TypeName != "bool") continue;
 
-            if (ps.ReadBool() != setting.originalValue) {
+            // setting gone (renamed or removed in an update): nothing to give back, just forget it
+            if (ps !is null && ps.TypeName == "bool" && ps.ReadBool() != setting.originalValue) {
                 ps.WriteBool(setting.originalValue);
             }
 

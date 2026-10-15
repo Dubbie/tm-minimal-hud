@@ -5,26 +5,11 @@ namespace PresetRepository {
     const string KEY_VERSION = "version";
     const string KEY_HIDDEN = "hidden";
     const string KEY_NAME = "name";
+    const string FILE_NAME = "presets";
     const int FORMAT_VERSION = 1;
 
-    enum LoadResult {
-        Missing,
-        Failed,
-        Loaded
-    }
-
     string Path() {
-        return IO::FromStorageFolder("presets.json");
-    }
-
-    bool HasField(
-        const Json::Value &in data,
-        const string &in name,
-        Json::Type expectedType
-    ) {
-        return data.GetType() == Json::Type::Object
-            && data.HasKey(name)
-            && data[name].GetType() == expectedType;
+        return IO::FromStorageFolder(FILE_NAME + ".json");
     }
 
     bool ContainsId(array<HudPreset@>@ list, const string &in id) {
@@ -53,7 +38,7 @@ namespace PresetRepository {
     }
 
     HudPreset@ PresetFromJson(const Json::Value@ data) {
-        if (!HasField(data, KEY_ID, Json::Type::String) || !HasField(data, KEY_NAME, Json::Type::String)) return null;
+        if (!JsonUtil::HasField(data, KEY_ID, Json::Type::String) || !JsonUtil::HasField(data, KEY_NAME, Json::Type::String)) return null;
 
         string id = data[KEY_ID];
         string name = data[KEY_NAME];
@@ -68,14 +53,14 @@ namespace PresetRepository {
             @preset = HudPreset(id, name);
         }
 
-        bool hasHidden = HasField(data, KEY_HIDDEN, Json::Type::Object);
+        bool hasHidden = JsonUtil::HasField(data, KEY_HIDDEN, Json::Type::Object);
 
         // iterate registry so we have all possible keys with values, unknown keys are ignored automatically
         for (uint i = 0; i < Targets::all.Length; i++) {
             HideTarget@ target = Targets::all[i];
             bool value = target.defaultHidden; // handles missing entirely, missing key and wrong type
 
-            if (hasHidden && HasField(data[KEY_HIDDEN], target.key, Json::Type::Boolean)) {
+            if (hasHidden && JsonUtil::HasField(data[KEY_HIDDEN], target.key, Json::Type::Boolean)) {
                 value = data[KEY_HIDDEN][target.key];
             }
 
@@ -85,30 +70,30 @@ namespace PresetRepository {
         return preset;
     }
 
-    LoadResult Load(array<HudPreset@>@ into, string &out activeId) {
+    Storage::LoadResult Load(array<HudPreset@>@ into, string &out activeId) {
         activeId = "";
 
-        if (!IO::FileExists(Path())) return LoadResult::Missing;
+        if (!IO::FileExists(Path())) return Storage::LoadResult::Missing;
 
         Json::Value@ root;
         try {
             @root = Json::FromFile(Path());
         } catch {
-            return LoadResult::Failed;
+            return Storage::LoadResult::Failed;
         }
 
-        if (!HasField(root, KEY_VERSION, Json::Type::Number) || !HasField(root, KEY_PRESETS, Json::Type::Array)) {
-            return LoadResult::Failed;
+        if (!JsonUtil::HasField(root, KEY_VERSION, Json::Type::Number) || !JsonUtil::HasField(root, KEY_PRESETS, Json::Type::Array)) {
+            return Storage::LoadResult::Failed;
         }
 
         int version = root[KEY_VERSION];
 
         // time traveling or nonsense
         if (version > FORMAT_VERSION || version < 1) {
-            return LoadResult::Failed;
+            return Storage::LoadResult::Failed;
         }
 
-        if (HasField(root, KEY_ACTIVE, Json::Type::String)) {
+        if (JsonUtil::HasField(root, KEY_ACTIVE, Json::Type::String)) {
             activeId = root[KEY_ACTIVE];
         }
 
@@ -128,7 +113,7 @@ namespace PresetRepository {
             into.InsertLast(preset);
         }
 
-        return LoadResult::Loaded;
+        return Storage::LoadResult::Loaded;
     }
 
     void Save(array<HudPreset@>@ presets, const string &in activeId) {
@@ -151,13 +136,6 @@ namespace PresetRepository {
     }
 
     string Backup() {
-        // create backup presets file datetimed, ex. presets.broken-xxxx-xx-xx_xx-xx-xx.json
-        string dateTime = Time::FormatString("%Y-%m-%d_%H-%M-%S", Time::Stamp);
-        string backupName = "presets.broken-" + dateTime + ".json";
-        string backupPath = IO::FromStorageFolder(backupName);
-
-        IO::Move(Path(), backupPath);
-
-        return backupName;
+        return Storage::Backup(FILE_NAME);
     }
 }

@@ -26,13 +26,17 @@ namespace MinimalMode {
                 target.Restore();
             }
         }
+
+        SnapshotRepository::Save();
     }
 
-    void Restore() {
+    void Restore(bool persist = true) {
         for (uint i = 0; i < Targets::all.Length; i++) {
             HideTarget@ target = Targets::all[i];
             target.Restore();
         }
+
+        if (persist) SnapshotRepository::Save();
 
         enabled = false;
     }
@@ -59,15 +63,17 @@ namespace MinimalMode {
             @observedPlayground = currentPlayground;
         }
 
-        if (!minimalModeRequested || currentPlayground is null) {
-            reapplyElapsedMs = 0;
-            return;
-        } else {
-            reapplyElapsedMs += dt;
-            if (reapplyElapsedMs >= 250) {
-                reapplyElapsedMs = 0;
-                Apply();
-            }
+        reapplyElapsedMs += dt;
+
+        if (reapplyElapsedMs < 250) return;
+
+        reapplyElapsedMs = 0;
+
+        if (minimalModeRequested && currentPlayground !is null) {
+            Apply();
+        } else if (HasAnySnapshot()) {
+            // not active, give back anything still hidden, e.g. a plugin missing at load
+            Restore();
         }
     }
 
@@ -75,5 +81,24 @@ namespace MinimalMode {
         if (!minimalModeRequested || !Game::InMap()) return;
 
         Apply();
+    }
+
+    void Recover() {
+        // last session didn't restore: put the originals back before anything can hide again
+        if (SnapshotRepository::Load() == Storage::LoadResult::Failed) {
+            string backupName = SnapshotRepository::Backup();
+            Notify::Warn(SnapshotRepository::FILE_NAME + ".json failed to load and was moved to " + backupName + ".\n If another plugin's overlay stays hidden, turn it back on in that plugin's settings.");
+        }
+
+        Restore();
+    }
+
+    bool HasAnySnapshot() {
+        for (uint i = 0; i < Targets::all.Length; i++) {
+            HideTarget@ target = Targets::all[i];
+            if (target.HasSnapshot()) return true;
+        }
+
+        return false;
     }
 }

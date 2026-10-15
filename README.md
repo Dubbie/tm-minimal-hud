@@ -30,13 +30,12 @@ They're saved to `presets.json` in the plugin's storage folder. If that file eve
 
 ## How other plugins are hidden
 
-Minimal HUD doesn't draw over other plugins. It turns off their display settings while minimal mode is on, and puts back exactly what you had when it turns off, when you leave a map, or when Minimal HUD is disabled.
+Minimal HUD doesn't draw over other plugins. It turns off their display settings while minimal mode is on, and puts back exactly what you had when it turns off, when you leave a map, or when Minimal HUD is disabled. Your original values are also saved to `snapshots.json`, so they're put back the next time Minimal HUD loads, even after crashes.
 
 ## Known limitations
 
 - The native chat isn't re-hidden every frame, so it can show up again until the next re-apply.
 - Better Chat shows while the Openplanet overlay (`F3`) is open.
-- If the game crashes while minimal mode is on, other plugins' settings can stay hidden. Turn them back on in that plugin's settings.
 
 ## Issues
 

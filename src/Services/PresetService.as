@@ -37,7 +37,7 @@ namespace Presets {
         // reading stuff
         array<HudPreset@> loaded;
         string activeId;
-        PresetRepository::LoadResult result = PresetRepository::Load(loaded, activeId); // this sets up both loaded and activeId
+        Storage::LoadResult result = PresetRepository::Load(loaded, activeId); // this sets up both loaded and activeId
 
         // find default preset
         HudPreset@ defaultPreset = FindById(loaded, "default");
@@ -57,9 +57,9 @@ namespace Presets {
         @active = saved is null ? all[0] : saved;
 
         // handle load results
-        if (result == PresetRepository::LoadResult::Missing) {
+        if (result == Storage::LoadResult::Missing) {
             Save();
-        } else if (result == PresetRepository::LoadResult::Failed) {
+        } else if (result == Storage::LoadResult::Failed) {
             // move the file out of the way before saving, so it's not overwritten
             string backupName = PresetRepository::Backup();
             Notify::Warn("presets.json could not be read and was moved to " + backupName + ". Using default presets.");

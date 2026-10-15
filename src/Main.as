@@ -3,6 +3,7 @@ bool cycleKeyDown = false;
 
 void Main() {
     Presets::Initialize();
+    MinimalMode::Recover();
 }
 
 void Update(float dt) {
@@ -31,7 +32,8 @@ void RenderMenu() {
 
 // restore everything when plugin is disabled or unloaded, so nothing stays hidden
 void OnDisabled() {
-    MinimalMode::Restore();
+    // no snapshot saving here
+    MinimalMode::Restore(false);
 }
 
 void OnDestroyed() {
